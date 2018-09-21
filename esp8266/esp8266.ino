@@ -1,13 +1,15 @@
+//#include <U8g2lib.h>
+//#include <U8x8lib.h>
+
 #include <ESP8266WiFi.h>
-#include wifi.h
-// WiFi config
-const char ssid[] = "12345";
-const char password[] = "12345";
+#include "wifi.h"
+#include "temppref.h"
 
 // IO
 const int green = 0;
 const int red = 8;
 const int yellow = 6;
+//U8G2_SSD1306_128X32_UNIVISION_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ 16, /* clock=*/ 5, /* data=*/ 4);
 
 // Server, file, port
 const char hostname[] = "query.yahooapis.com";
@@ -21,6 +23,7 @@ unsigned long timeout = 10000;  // ms
 WiFiClient client;
 
 void setup() {
+  
   pinMode(red,OUTPUT);
   pinMode(yellow,OUTPUT);
   pinMode(green,OUTPUT);
@@ -46,7 +49,7 @@ void loop() {
 
   unsigned long timestamp;
   int temp;
-
+  int tempCelsius;
   // Establish TCP connection
   Serial.print("Connecting to ");
   Serial.println(hostname);
@@ -71,22 +74,23 @@ void loop() {
   // Parse temperature
   if ( client.find("temp\":") ) {
     temp = client.parseInt();
+    tempCelsius = (temp - 32) * 5/9;
     Serial.print("Verwachte Temperatuur: ");
-    Serial.print((temp - 32) * 5/9);
+    Serial.print(tempCelsius);
     Serial.println(" C");
-    if (temp < 10) {
+    if (tempCelsius < badWeather) {
       digitalWrite(green,LOW);
       digitalWrite(yellow,LOW);
       digitalWrite(red,HIGH);
-    } else if (temp < 20) {
+    } else if (tempCelsius < regularWeather) {
       digitalWrite(green,LOW);
       digitalWrite(yellow,HIGH);
       digitalWrite(red,LOW);
-    } else {
+    } else if (tempCelsius > awesomeWeather) {
       digitalWrite(green,HIGH);
       digitalWrite(yellow,LOW);
       digitalWrite(red,LOW);
-    }
+    } 
   }
 
   // Flush receive buffer
