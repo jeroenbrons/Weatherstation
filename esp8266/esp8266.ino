@@ -1,5 +1,5 @@
 #include <ESP8266WiFi.h>
-
+#include wifi.h
 // WiFi config
 const char ssid[] = "12345";
 const char password[] = "12345";
